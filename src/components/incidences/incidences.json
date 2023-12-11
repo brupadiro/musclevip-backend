@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_incidences_incidences",
+  "info": {
+    "displayName": "Incidences",
+    "icon": "address-card"
+  },
+  "options": {},
+  "attributes": {
+    "incidence": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "incidents",
+  "info": {
+    "singularName": "incident",
+    "pluralName": "incidents",
+    "displayName": "Incidents",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "content": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "Solved",
+        "Updated",
+        "Pending"
+      ],
+      "default": "Pending"
+    },
+    "response": {
+      "type": "text"
+    },
+    "date_response": {
+      "type": "date"
+    },
+    "img": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order"
+    }
+  }
+}
