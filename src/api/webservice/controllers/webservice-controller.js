@@ -153,7 +153,7 @@ module.exports = {
         id
       }
     });
-    if(store.source =='Fisico') {
+    if(store.source !='Prestashop') {
       return 0
     }
     const API = new PrestaShopAPI(store.apiKey, store.url);

@@ -29,6 +29,16 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::webservice.webservice"
+    },
+    "image": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

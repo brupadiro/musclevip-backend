@@ -126,7 +126,7 @@ class PrestaShopAPI {
       response.data.products =   response.data.products.map((p)=>{
         return {
           ...p,
-          image:`https://phpstack-1166176-4074041.cloudwaysapps.com/${p.id}/${p.id_default_image}-home_default/${p.link_rewrite}.jpg`
+          image:`http://musclepresta.app.brupadev.tech/${p.id}/${p.id_default_image}-home_default/${p.link_rewrite}.jpg`
         }
       });
   
