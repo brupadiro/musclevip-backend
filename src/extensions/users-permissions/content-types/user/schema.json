@@ -76,6 +76,9 @@
         "Provider"
       ],
       "default": "admin"
+    },
+    "permissions": {
+      "type": "json"
     }
   }
 }

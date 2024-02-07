@@ -3,51 +3,46 @@ module.exports = {
         { // Path defined with a URL parameter
             method: 'POST',
             path: '/webservices/order/update/:id',
-            handler: 'webservice-controller.update',
+            handler: 'webservice-wordpress-controller.update',
         },
         { // Path defined with a URL parameter
             method: 'GET',
             path: '/webservices/order/:idstore/:id',
-            handler: 'webservice-controller.order',
+            handler: 'webservice-wordpress-controller.order',
         },
         { // Path defined with a URL parameter
             method: 'GET',
-            path: '/webservices/product/',
-            handler: 'webservice-controller.product',
-        },
-        { // Path defined with a URL parameter
-            method: 'GET',
-            path: '/webservices/products/:id',
-            handler: 'webservice-controller.products',
+            path: '/webservices/wordpress/products/:id',
+            handler: 'webservice-wordpress-controller.products',
         },
         { // Path defined with a URL parameter
             method: 'PUT',
             path: '/webservices/updateStock/:id/:idProduct',
-            handler: 'webservice-controller.updateStock',
+            handler: 'webservice-wordpress-controller.updateStock',
         },
 
         { // Path defined with a URL parameter
             method: 'GET',
-            path: '/webservices/customers/:id',
-            handler: 'webservice-controller.customers',
+            path: '/webservices/wordpress/customers/:id',
+            handler: 'webservice-wordpress-controller.customers',
         },
 
         { // Path defined with a URL parameter
             method: 'GET',
             path: '/webservices/orderListallstores/',
-            handler: 'webservice-controller.orderListAllStores',
+            handler: 'webservice-wordpress-controller.orderListAllStores',
         },
 
 
         { // Path defined with a URL parameter
             method: 'GET',
             path: '/webservices/orderList/:id',
-            handler: 'webservice-controller.orderList',
+            handler: 'webservice-wordpress-controller.orderList',
         },
         { // Path defined with a URL parameter
             method: 'GET',
             path: '/webservices/payments/:id',
-            handler: 'webservice-controller.payments',
+            handler: 'webservice-wordpress-controller.payments',
         },
 
 

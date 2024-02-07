@@ -1,9 +1,7 @@
 const axios = require("axios");
 const qs = require("qs");
-const PrestaShopAPI = require("../services/helpers/prestashop-api");
 const WordpressAPI = require("../services/helpers/wordpress-api");
-
-
+const WordPressAPI = require("../services/helpers/wordpress-api");
 module.exports = {
 
   async orderList(ctx) {
@@ -11,7 +9,7 @@ module.exports = {
       const {
         id
       } = ctx.params;
-      var orders = {}
+
       const store = await strapi.db.query('api::webservice.webservice').findOne({
         where: {
           id
@@ -19,19 +17,14 @@ module.exports = {
       });
 
       if(store.source=='Fisico') {
-        console.log(store)
-        orders.orders = await strapi.service('api::order.order').getFisicalOrders(ctx);
+        var fisicalOrders = {}
+        fisicalOrders.orders = await strapi.service('api::order.order').getFisicalOrders(ctx);
+        return fisicalOrders
       }
 
-      else if(store.source=='Wordpress') {
-        const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-        var response = await API.getCustomEndpoint(ctx);
-        orders.orders= response.data;
-      } else {
-      const API = new PrestaShopAPI(store.apiKey, store.url);
+      const API = new WordPressAPI(store.apiKey,store.apiSecret, store.url);
       var response = await API.getCustomEndpoint(ctx);
-      console.log("ente aca")
-      orders.orders = await Promise.all(response.data.map(async (order) => {
+      response.data = await Promise.all(response.data.map(async (order) => {
         return {
           ...order,
           product: {
@@ -39,27 +32,7 @@ module.exports = {
           }
         }
       }))
-      }
-
-
-
-      const  stock = await strapi.db.query('api::stock.stock').findMany({
-        store: id
-      })
-      console.log(orders.orders)
-      orders.orders = await Promise.all(orders.orders.map(async (order) => {
-        // Buscar el stock correspondiente
-        const matchingStock = stock.find(s => s.product_id === order.product.id) ?? {};
-        return {
-          ...order,
-          product: {
-            ...order.product,
-            ...matchingStock, // Añadir la información del stock al producto
-            stock_id:matchingStock.id
-          }
-        }
-      }))
-      return orders
+      return {orders:response.data};
     } catch (err) {
       console.log(err)
       return {
@@ -82,16 +55,13 @@ module.exports = {
       }
     });
 
-    if(store.source=='Wordpress') {
-      const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-      const order = await API.getOrderInfo(id)
-      return {
-        ...order,
-      }
-    }
 
-    const API = new PrestaShopAPI(store.apiKey, store.url);
+    const API = new WordPressAPI(store.apiKey,store.apiSecret, store.url);
+
+
     const order = await API.getOrderInfo(id)
+
+
     return {
       ...order,
     }
@@ -182,23 +152,12 @@ module.exports = {
         id
       }
     });
-    if(store.source =='Wordpress') {
-      console.log("aca")
-      const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-      const response = await API.getStats(ctx.request.query);
-      return response.data
-        return 0
-    } else if(store.source =='Fisico') {
-      console.log(strapi.service('api::order.order'))
-      const response = await strapi.service('api::order.order').getStats(ctx);
-      return response
-  
-    } else {
-      const API = new PrestaShopAPI(store.apiKey,store.url);
-      const response = await API.getStats(ctx);
-      console.log(response)
-      return response
+    if(store.source !='Prestashop') {
+      return 0
     }
+    const API = new WordPressAPI(store.apiKey,store.apiSecret, store.url);
+    const response = await API.getStats(ctx);
+    return response.data
 
   },
   async customers(ctx) {
@@ -215,21 +174,41 @@ module.exports = {
         id: id
       },
     });
-    var API = null
-    // Configuración para conectarnos a la API de PrestaShop
-    if(store.source =='Wordpress') {
-      API = new WordpressAPI(store.apiKey,store.secretKey, store.url);
-    } else {
-      API = new PrestaShopAPI(store.apiKey, store.url);
-
+    var limit = 10
+    if (ctx.query.pagination.page) {
+      let startItems = (ctx.query.pagination.page - 1) * 10
+      limit = `${startItems},10`
     }
+    console.log(limit)
+
+
+    // Configuración para conectarnos a la API de PrestaShop
+    const apiKey = store.apiKey;
+    const apiUrl = `${store.url}/api/customers`;
+    const config = {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`
+      },
+      params: {
+        output_format: "JSON",
+        display: "full",
+        limit: limit,
+        sort: "id_DESC"
+      },
+      paramsSerializer: function (params) {
+        return qs.stringify(params, {
+          arrayFormat: "brackets"
+        });
+      },
+
+    };
     // Hacemos la petición GET a la API de PrestaShop
     var customers = []
     try {
-      const response = await API.getCustomers(ctx);
-      customers = response.data
+      const response = await axios.get(apiUrl, config);
+      customers = response.data.customers
     } catch (err) {
-      console.log("error", err)
+      console.log("error", err.response.data)
     }
 
     return customers;
@@ -248,39 +227,12 @@ module.exports = {
         id
       }
     });
-    if(store.source =='Wordpress') {
-      const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-      const response = await API.getProducts(ctx);
-      return response.data
-    }
-    const API = new PrestaShopAPI(store.apiKey, store.url);
+    const API = new WordPressAPI(store.apiKey,store.apiSecret, store.url);
     const response = await API.getProducts(ctx);
     return response.data
 
   },
-  async product(ctx) {
-    const {
-      id
-    } = ctx.params;
-    const {
-      idProduct
-    } = ctx.query;
-    // Hacemos la petición GET a la API de PrestaShop
-      const stores = await strapi.db.query('api::webservice.webservice').findMany()
-      var response = []
-      for (const store of stores) {
-        if(store.source =='Wordpress') {
-          const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-          wordresponse = await API.getProduct(ctx);
-          response = [ ...wordresponse.data, ...response]
-        } else {
-          //const API = new PrestaShopAPI(store.apiKey, store.url);
-          //prestaresponse = await API.getProduct(idProduct);
-          //response = [ ...prestaresponse.data, ...response]
-        }
-      }
-      return response
-  },
+
   async updateStock(ctx) {
     const {
       quantity
@@ -294,17 +246,24 @@ module.exports = {
         id
       }
     });
-    if(store.source =='Wordpress') {
-      const API = new WordpressAPI(store.apiKey,store.secretKey,store.url);
-      const response = await API.updateProductStock(idProduct,quantity);
-      return response
-    }
-    const API = new PrestaShopAPI(store.apiKey, store.url);
+    const API = new WordPressAPI(store.apiKey,store.apiSecret, store.url);
     const response = await API.updateProductStock(idProduct,quantity);
     return response.data
 
   },
 
-
+  async wordpressApi(ctx) {
+    const {
+      id
+    } = ctx.params;
+    const store = await strapi.db.query('api::webservice.webservice').findOne({
+      where: {
+        id
+      }
+    });
+    const API = new WordpressAPI(store.url);
+    const response = await API.getPosts(ctx);
+    return response.data;
+  }
 
 }

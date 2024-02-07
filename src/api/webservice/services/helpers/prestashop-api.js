@@ -18,7 +18,7 @@ class PrestaShopAPI {
 
   async getStats(ctx) {
     var response = await this.axiosHelper.getRequest('/index.php?fc=module&module=orderinfoapi&controller=salestats',ctx.request.query);
-  return response;
+  return response.data;
 }
 
   async getPayments(ctx) {
@@ -82,7 +82,6 @@ class PrestaShopAPI {
 
     // Obtener información adicional del cliente
     const customerData = await this.getCustomerData(customerId);
-    console.log(customerData.data)
     // Obtener información de los productos de la orden
     // Crear objeto JSON con toda la información
     const orderInfo = {
@@ -123,7 +122,7 @@ class PrestaShopAPI {
         limit: limit || 10,
       };
       response = await this.axiosHelper.getRequest('/api/products',params);
-      response.data.products =   response.data.products.map((p)=>{
+      response.data.products =  response.data.products.map((p)=>{
         return {
           ...p,
           image:`http://musclepresta.app.brupadev.tech/${p.id}/${p.id_default_image}-home_default/${p.link_rewrite}.jpg`
@@ -140,6 +139,29 @@ class PrestaShopAPI {
   async updateProductStock(productId, quantity) {
     const response = await this.axiosHelper.putRequest(`/api/products/${productId}`, { quantity: quantity });
     return response.data
+  }
+  async getCustomers(ctx) {
+    const { limit, page } = ctx.query.pagination;
+    var response = {
+      data:{
+        customers: []
+      }
+    }
+    try{
+      const params = {
+        output_format: 'JSON',
+        display: 'full',
+        sort: 'id_DESC',
+        page: page || 1,
+        limit: limit || 10,
+      };
+      response = await this.axiosHelper.getRequest('/api/customers',params);
+  
+    }catch(err){
+      console.log("Error", err)
+    }
+    
+    return response;
   }
 }
 

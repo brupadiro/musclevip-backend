@@ -31,8 +31,12 @@
       "enum": [
         "Prestashop",
         "Fisico",
-        "Amazon"
+        "Amazon",
+        "Wordpress"
       ]
+    },
+    "secretKey": {
+      "type": "string"
     }
   }
 }

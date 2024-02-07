@@ -46,6 +46,13 @@
     },
     "date": {
       "type": "date"
+    },
+    "movement": {
+      "type": "enumeration",
+      "enum": [
+        "Entrada",
+        "Salida"
+      ]
     }
   }
 }

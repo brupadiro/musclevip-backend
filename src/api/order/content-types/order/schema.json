@@ -13,7 +13,7 @@
   "pluginOptions": {},
   "attributes": {
     "total_paid": {
-      "type": "integer"
+      "type": "decimal"
     },
     "status": {
       "type": "integer"
@@ -34,10 +34,10 @@
       "relation": "oneToOne",
       "target": "api::webservice.webservice"
     },
-    "product": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::product.product"
+    "products": {
+      "type": "component",
+      "repeatable": true,
+      "component": "products.products"
     }
   }
 }
